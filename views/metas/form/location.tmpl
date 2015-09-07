@@ -64,12 +64,30 @@
         this.marker            = null;
 
         // Main method
-        this.init();
+        this.tryToGetCurrentPosition(this.init);
       };
 
       Locator.prototype.init = function() {
         this.setupMap();
         this.bindEvents();
+      };
+
+      Locator.prototype.tryToGetCurrentPosition = function(alwaysCallback) {
+        var _this = this,
+          latitude = Number(this.$latitude.val()),
+          longitude = Number(this.$longitude.val());
+
+        if (navigator.geolocation && latitude === 0 && longitude === 0) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            _this.$latitude.val(position.coords.latitude);
+            _this.$longitude.val(position.coords.longitude);
+            alwaysCallback.call(_this);
+          }, function() {
+            alwaysCallback.call(_this);
+          });
+        } else {
+            alwaysCallback.call(_this);
+        };
       };
 
       Locator.prototype.setupMap = function() {
