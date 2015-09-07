@@ -260,4 +260,32 @@
     })(jQuery, window);
   }).call(this);
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?callback=Location.Init" async defer></script>
+
+<!-- Avoid loading google map js multiple times -->
+<script type="text/javascript">
+  (function () {
+    var afterSlideOutOpen = function(callback) {
+      var loadedLocation = false;
+      var loadingInterval = setInterval(function() {
+        if (!loadedLocation && $('body').hasClass("qor-slideout-open")) {
+          callback.call(this);
+          loadedLocation = true;
+          clearInterval(loadingInterval);
+        }
+      }, 200)
+    };
+
+    var tagId = 'location-google-map-script-tag';
+    if (!document.getElementById(tagId)) {
+      var tagjs = document.createElement("script");
+      var s = document.getElementsByTagName("script")[0];
+      tagjs.async = true;
+      tagjs.defer = true;
+      tagjs.id = tagId;
+      tagjs.src = "//maps.googleapis.com/maps/api/js?callback=Location.Init";
+      s.parentNode.insertBefore(tagjs, s);
+    } else {
+      afterSlideOutOpen(Location.Init);
+    }
+  }());
+</script>
