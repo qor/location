@@ -1,0 +1,245 @@
+<style>
+  [data-location-role="map"] {
+    width: 100%;
+    height: 300px;
+  }
+</style>
+
+{{$countryName := (replace_suffix .InputName "Location" "Country") }}
+{{$cityName := (replace_suffix .InputName "Location" "City") }}
+{{$regionName := (replace_suffix .InputName "Location" "Region") }}
+{{$addressName := (replace_suffix .InputName "Location" "Address") }}
+{{$zipName := (replace_suffix .InputName "Location" "Zip") }}
+{{$latitudeName := (replace_suffix .InputName "Location" "Latitude") }}
+{{$longitudeName := (replace_suffix .InputName "Location" "Longitude") }}
+
+<div data-location="true">
+  <label>Country</label>
+  <input type="text" data-location-role="country" name="{{$countryName}}" value="{{.Value.Country}}">
+
+  <label>City</label>
+  <input type="text" data-location-role="city" name="{{$cityName}}" value="{{.Value.City}}">
+
+  <label>Region</label>
+  <input type="text" data-location-role="region" name="{{$regionName}}" value="{{.Value.Region}}">
+
+  <label>Address</label>
+  <input type="text" data-location-role="address" name="{{$addressName}}" value="{{.Value.Address}}">
+
+  <label>Zip</label>
+  <input type="text" data-location-role="zip" name="{{$zipName}}" value="{{.Value.Zip}}">
+
+  <input type="hidden" data-location-role="latitude" name="{{$latitudeName}}" value="{{.Value.Latitude}}">
+  <input type="hidden" data-location-role="longitude" name="{{$longitudeName}}" value="{{.Value.Longitude}}">
+
+  <a href="javascript:;" data-location-role="geocode">Search</a>
+  <a href="javascript:;" data-location-role="reverseGeocode">Set location</a>
+
+  <div data-location-role="map"></div>
+  <div data-location-role="currentAddress"></div>
+</div>
+
+<script>
+  !(function() {
+    (function($, Export) {
+      "use script";
+
+      var Locator = function($context) {
+        // jQuery object instances
+        this.$context        = $context;
+        this.$country        = $('[data-location-role = "country"]', $context);
+        this.$city           = $('[data-location-role = "city"]', $context);
+        this.$region         = $('[data-location-role = "region"]', $context);
+        this.$address        = $('[data-location-role = "address"]', $context);
+        this.$zip            = $('[data-location-role = "zip"]', $context);
+        this.$latitude       = $('[data-location-role = "latitude"]', $context);
+        this.$longitude      = $('[data-location-role = "longitude"]', $context);
+        this.$geocode        = $('[data-location-role = "geocode"]', $context);
+        this.$reverseGeocode = $('[data-location-role = "reverseGeocode"]', $context);
+        this.$map            = $('[data-location-role = "map"]', $context);
+        this.$currentAddress = $('[data-location-role = "currentAddress"]', $context);
+        // Google map instances
+        this.map               = null;
+        this.geocoder          = null;
+        this.marker            = null;
+
+        // Main method
+        this.init();
+      };
+
+      Locator.prototype.init = function() {
+        this.setupMap();
+        this.bindEvents();
+      };
+
+      Locator.prototype.setupMap = function() {
+        var latitude = Number(this.$latitude.val()),
+          longitude = Number(this.$longitude.val()),
+          zoom = this.getZoom();
+
+        this.geocoder = new google.maps.Geocoder;
+        this.map = new google.maps.Map(this.$map[0], {
+          zoom: zoom
+        });
+        this.marker = new google.maps.Marker({
+          map: this.map,
+          position: {lat: latitude, lng: longitude},
+          draggable: true
+        });
+        this.map.setCenter(this.marker.getPosition());
+        this.setCurrentAddress();
+      };
+
+      Locator.prototype.bindEvents = function() {
+        var _this = this;
+
+        google.maps.event.bind(this.marker, "dragend", this, function(){
+          _this.setPosition();
+          _this.setCurrentAddress();
+        });
+
+        this.$geocode.on('click', function() {
+          _this.geocode();
+        });
+        this.$reverseGeocode.on('click', function(){
+          _this.reverseGeocode();
+        });
+      };
+
+      Locator.prototype.getFormattedAddress = function() {
+        var addressParts = [];
+        if (this.$address.val() !== "") {
+          addressParts.push(this.$address.val());
+        }
+        if (this.$city.val() !== "") {
+          addressParts.push(this.$city.val());
+        }
+        if (this.$region.val() !== "") {
+          addressParts.push(this.$region.val());
+        }
+        if (this.$country.val() !== "") {
+          addressParts.push(this.$country.val());
+        }
+        return addressParts.join(", ");
+      };
+
+      Locator.prototype.getZoom = function() {
+        var zoom;
+        if(this.$address.val() != "") zoom = 17;
+        else if(this.$zip.val() != "") zoom = 15;
+        else if(this.$city.val() != "") zoom = 12;
+        else if(this.$region.val() != "") zoom = 8;
+        else if (this.$country.val() != "") zoom = 6;
+        else zoom = 4;
+
+        return zoom;
+      };
+
+      Locator.prototype.geocode = function() {
+        var address = this.getFormattedAddress(),
+          zoom = this.getZoom(),
+          map = this.map,
+          geocoder = this.geocoder,
+          marker = this.marker;
+
+        geocoder.geocode({'address': address}, function(results, status) {
+          if (status === google.maps.GeocoderStatus.OK) {
+            map.setCenter(results[0].geometry.location);
+            map.setZoom(zoom);
+            marker.setPosition(results[0].geometry.location);
+          } else {
+            alert('Geocode was not successful for the following reason: ' + status);
+          };
+        });
+      };
+
+      Locator.prototype.reverseGeocode = function() {
+        var _this = this,
+          geocoder = this.geocoder,
+          marker = this.marker;
+
+        geocoder.geocode({ 'latLng': marker.getPosition()}, function(results, status) {
+          if (status == google.maps.GeocoderStatus.OK) {
+            _this.setLocation(results[0]);
+          }
+        });
+      };
+
+      Locator.prototype.setCurrentAddress = function() {
+        var _this = this,
+          geocoder = this.geocoder,
+          markerPosition = this.marker.getPosition(),
+          template = '%{formatted_address} (%{lat}, %{lng})',
+          currentAddress = '';
+
+        geocoder.geocode({ 'latLng': markerPosition}, function(results, status) {
+          if (status == google.maps.GeocoderStatus.OK) {
+            currentAddress = template.replace('%{formatted_address}', results[0].formatted_address);
+            currentAddress = currentAddress.replace('%{lat}', markerPosition.lat());
+            currentAddress = currentAddress.replace('%{lng}', markerPosition.lng());
+            _this.$currentAddress.text(currentAddress);
+          }
+        });
+      };
+
+      Locator.prototype.setPosition = function() {
+        var markerPosition = this.marker.getPosition();
+        this.$latitude.val(markerPosition.lat());
+        this.$longitude.val(markerPosition.lng());
+      };
+
+      Locator.prototype.setLocation = function(geoResult) {
+        var country = '', address = '', city = '', region = '', zip = '', latitude = '', longitude = '';
+
+        var addressComponents = geoResult['address_components'];
+        var values = { street_number : "", route : "", postal_code : "", administrative_area_level_1 : "", locality : "", country : ""};
+        for (var compIndex in addressComponents){
+          var types = addressComponents[compIndex].types;
+          for(var typeIndex in types){
+            if (types[typeIndex] == 'country') {
+              country = addressComponents[compIndex].long_name;
+            }
+            values[types[typeIndex]] = addressComponents[compIndex].short_name;
+          }
+        }
+
+        city = values["locality"] || values["sublocality"] || values["administrative_area_level_3"];
+        region = values["country"] == "FR" ? values["administrative_area_level_1"] : (values["administrative_area_level_2"] || values["administrative_area_level_1"]);
+        zip = values['postal_code']
+
+        var divided_by_city = geoResult.formatted_address.split(city);
+        var left_side = divided_by_city[0];
+        if (zip && zip != "") {
+          left_side = left_side.replace(zip, '');
+        }
+        if(left_side.replace(region, '') == left_side) {
+          address = left_side;
+        } else {
+          address = divided_by_city[1];
+        }
+        address = address.replace(/[\,\s]+$/i, '');
+        if(geoResult.formatted_address.match(/^\d*,/)) address = "";
+
+        this.$country.val(country);
+        this.$zip.val(zip);
+        this.$region.val(region);
+        this.$city.val(city);
+        this.$address.val(address);
+      };
+
+      var Location = {
+        Init : function() {
+          $('[data-location="true"]').each(function() {
+            var $this = $(this);
+            var locator = new Locator($this);
+            $this.data('locator', locator);
+          });
+        }
+      };
+
+      Export.Location = Location;
+
+    })(jQuery, window);
+  }).call(this);
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?callback=Location.Init" async defer></script>
