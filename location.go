@@ -20,7 +20,7 @@ type Location struct {
 	Longitude float64
 }
 
-type locationWriter interface {
+type locationInterface interface {
 	GetLocation() *Location
 }
 
@@ -46,7 +46,10 @@ func (Location) InjectQorAdmin(res *admin.Resource) {
 
 	if res.GetMeta("Location") == nil {
 		res.Meta(&admin.Meta{Name: "Location", Type: "location", Valuer: func(resource interface{}, ctx *qor.Context) interface{} {
-			return resource.(locationWriter).GetLocation()
+			if location, ok := resource.(locationInterface); ok {
+				return location.GetLocation()
+			}
+			return nil
 		}})
 		res.IndexAttrs(append(res.IndexAttrs(), "-Location")...)
 		res.ShowAttrs(append(res.ShowAttrs(), "-Location")...)
