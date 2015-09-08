@@ -216,7 +216,7 @@
       }
     };
 
-    Export.Location = Location;
+    Export.QorLocation = QorLocation;
 
   })(jQuery, window);
 }).call(this);
