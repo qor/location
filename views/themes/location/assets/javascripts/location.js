@@ -107,8 +107,9 @@
       else if(this.$zip.val() != "") zoom = 15;
       else if(this.$city.val() != "") zoom = 12;
       else if(this.$region.val() != "") zoom = 8;
-      else if (this.$country.val() != "") zoom = 6;
-      else zoom = 4;
+      else if(this.$country.val() != "") zoom = 6;
+      else if(this.$latitude.val() != "0" && this.$longitude.val() != "0") zoom = 10;
+      else zoom = 2;
 
       return zoom;
     };
