@@ -213,10 +213,22 @@
           var locator = new Locator($this);
           $this.data('locator', locator);
         });
+      },
+
+      InitAfterSlideOutOpen : function() {
+        var _this = this;
+        var loadedLocation = false;
+        var loadingInterval = setInterval(function() {
+          if (!loadedLocation && $('body').hasClass("qor-slideout-open")) {
+            _this.Init();
+            loadedLocation = true;
+            clearInterval(loadingInterval);
+          }
+        }, 200)
       }
     };
 
-    Export.QorLocation = QorLocation;
+    Export.QorLocation = Location;
 
   })(jQuery, window);
 }).call(this);

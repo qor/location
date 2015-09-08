@@ -73,17 +73,6 @@
 <!-- Avoid loading google map js multiple times -->
 <script type="text/javascript">
   (function () {
-    var afterSlideOutOpen = function(callback) {
-      var loadedLocation = false;
-      var loadingInterval = setInterval(function() {
-        if (!loadedLocation && $('body').hasClass("qor-slideout-open")) {
-          callback.call(this);
-          loadedLocation = true;
-          clearInterval(loadingInterval);
-        }
-      }, 200)
-    };
-
     var tagId = 'location-google-map-script-tag';
     if (!document.getElementById(tagId)) {
       var tagjs = document.createElement("script");
@@ -94,7 +83,7 @@
       tagjs.src = "//maps.googleapis.com/maps/api/js?callback=QorLocation.Init";
       s.parentNode.insertBefore(tagjs, s);
     } else {
-      afterSlideOutOpen(QorLocation.Init);
+      QorLocation.InitAfterSlideOutOpen();
     }
   }());
 </script>
