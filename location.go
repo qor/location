@@ -30,7 +30,7 @@ func (location *Location) GetLocation() *Location {
 
 var injected bool
 
-func (Location) InjectQorAdmin(res *admin.Resource) {
+func (Location) ConfigureQorResource(res *admin.Resource) {
 	Admin := res.GetAdmin()
 
 	if !injected {
