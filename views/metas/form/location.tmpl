@@ -6,33 +6,67 @@
 {{$latitudeName := (replace_suffix .InputName "Location" "Latitude") }}
 {{$longitudeName := (replace_suffix .InputName "Location" "Longitude") }}
 
-<div data-location="true">
-  <label for="{{.InputId}}">{{dt (printf "%v.attributes.%v" .Base.ToParam "Location") "Location"}}</label>
+<div class="qor-location qor-field" data-location="true">
+  <label class="qor-field__label" for="{{.InputId}}">{{dt (printf "%v.attributes.%v" .Base.ToParam "Location") "Location"}}</label>
 
-  <div id="{{.InputId}}">
-    <label for="{{.InputId}}_Country">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Loation" "Country") "Country"}}</label>
-    <input id="{{.InputId}}_Country" type="text" data-location-role="country" name="{{$countryName}}" value="{{.Value.Country}}">
+  <div class="qor-field__block" id="{{.InputId}}">
+    <div class="mdl-grid">
+      <div class="mdl-cell mdl-cell--6-col">
+        <input id="{{.InputId}}_Latitude" type="hidden" data-location-role="latitude" name="{{$latitudeName}}" value="{{.Value.Latitude}}">
+        <input id="{{.InputId}}_Longitude" type="hidden" data-location-role="longitude" name="{{$longitudeName}}" value="{{.Value.Longitude}}">
 
-    <label for="{{.InputId}}_City">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Loation" "City") "City"}}</label>
-    <input id="{{.InputId}}_City" type="text" data-location-role="city" name="{{$cityName}}" value="{{.Value.City}}">
+        <div class="qor-field">
+          <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield qor-textfield--static-label">
+            <input class="mdl-textfield__input" id="{{.InputId}}_Address" type="text" data-location-role="address" name="{{$addressName}}" value="{{.Value.Address}}">
+            <label class="mdl-textfield__label" for="{{.InputId}}_Address">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Loation" "Address") "Address"}}</label>
+          </div>
+        </div>
 
-    <label for="{{.InputId}}_Region">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Loation" "Region") "Region"}}</label>
-    <input id="{{.InputId}}_Region" type="text" data-location-role="region" name="{{$regionName}}" value="{{.Value.Region}}">
+        <div class="qor-field">
+          <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield qor-textfield--static-label">
+            <input class="mdl-textfield__input" id="{{.InputId}}_City" type="text" data-location-role="city" name="{{$cityName}}" value="{{.Value.City}}">
+            <label class="mdl-textfield__label" for="{{.InputId}}_City">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Loation" "City") "City"}}</label>
+          </div>
+        </div>
 
-    <label for="{{.InputId}}_Address">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Loation" "Address") "Address"}}</label>
-    <input id="{{.InputId}}_Address" type="text" data-location-role="address" name="{{$addressName}}" value="{{.Value.Address}}">
+        <div class="qor-field">
+          <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield qor-textfield--static-label">
+            <input class="mdl-textfield__input" id="{{.InputId}}_Region" type="text" data-location-role="region" name="{{$regionName}}" value="{{.Value.Region}}">
+            <label class="mdl-textfield__label" for="{{.InputId}}_Region">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Loation" "Region") "Region"}}</label>
+          </div>
+        </div>
 
-    <label for="{{.InputId}}_Zip">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Loation" "Zip") "Zip"}}</label>
-    <input id="{{.InputId}}_Zip" type="text" data-location-role="zip" name="{{$zipName}}" value="{{.Value.Zip}}">
+        <div class="qor-field">
+          <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield qor-textfield--static-label">
+            <input class="mdl-textfield__input" id="{{.InputId}}_Country" type="text" data-location-role="country" name="{{$countryName}}" value="{{.Value.Country}}">
+            <label class="mdl-textfield__label" for="{{.InputId}}_Country">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Loation" "Country") "Country"}}</label>
+          </div>
+        </div>
 
-    <input id="{{.InputId}}_Latitude" type="hidden" data-location-role="latitude" name="{{$latitudeName}}" value="{{.Value.Latitude}}">
-    <input id="{{.InputId}}_Longitude" type="hidden" data-location-role="longitude" name="{{$longitudeName}}" value="{{.Value.Longitude}}">
+        <div class="qor-field">
+          <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield qor-textfield--static-label">
+            <input class="mdl-textfield__input" id="{{.InputId}}_Zip" type="text" data-location-role="zip" name="{{$zipName}}" value="{{.Value.Zip}}">
+            <label class="mdl-textfield__label" for="{{.InputId}}_Zip">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Loation" "Zip") "Zip"}}</label>
+          </div>
+        </div>
 
-    <a href="javascript:;" data-location-role="geocode">{{dt (printf "%v.%v.%v" .Base.ToParam "Loation" "Search on Map") "Search on Map"}}</a>
-    <a href="javascript:;" data-location-role="reverseGeocode">{{dt (printf "%v.%v.%v" .Base.ToParam "Loation" "Set Address from Marker") "Set Address from Marker"}}</a>
+        <button class="mdl-button mdl-js-button mdl-button--raised" data-location-role="geocode">
+          {{dt (printf "%v.%v.%v" .Base.ToParam "Loation" "Search on Map") "Search on Map"}}
+        </button>
+      </div>
 
-    <div data-location-role="map"></div>
-    <div data-location-role="currentAddress"></div>
+      <div class="mdl-cell mdl-cell--6-col">
+        <div class="qor-location-map mdl-card mdl-shadow--2dp">
+          <div class="mdl-card__title mdl-card--expand" data-location-role="map"></div>
+          <div class="mdl-card__supporting-text" data-location-role="currentAddress"></div>
+          <div class="mdl-card__actions mdl-card--border">
+            <button class="mdl-button mdl-js-button" data-location-role="reverseGeocode">
+              {{dt (printf "%v.%v.%v" .Base.ToParam "Loation" "Set Address from Marker") "Set Address from Marker"}}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 

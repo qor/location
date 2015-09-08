@@ -74,10 +74,12 @@
         _this.setCurrentAddress();
       });
 
-      this.$geocode.on('click', function() {
+      this.$geocode.on('click', function(evt) {
+        evt.preventDefault();
         _this.geocode();
       });
-      this.$reverseGeocode.on('click', function(){
+      this.$reverseGeocode.on('click', function(evt){
+        evt.preventDefault();
         _this.reverseGeocode();
       });
     };
