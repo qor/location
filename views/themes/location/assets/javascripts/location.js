@@ -115,7 +115,8 @@
     };
 
     Locator.prototype.geocode = function() {
-      var address = this.getFormattedAddress(),
+      var _this = this,
+        address = this.getFormattedAddress(),
         zoom = this.getZoom(),
         map = this.map,
         geocoder = this.geocoder,
@@ -126,6 +127,7 @@
           map.setCenter(results[0].geometry.location);
           map.setZoom(zoom);
           marker.setPosition(results[0].geometry.location);
+          _this.renderCurrentAddress(results[0].formatted_address, results[0].geometry.location.lat(), results[0].geometry.location.lng())
         } else {
           alert('Geocode was not successful for the following reason: ' + status);
         };
@@ -148,17 +150,21 @@
       var _this = this,
         geocoder = this.geocoder,
         markerPosition = this.marker.getPosition(),
-        template = '%{formatted_address} (%{lat}, %{lng})',
         currentAddress = '';
 
       geocoder.geocode({ 'latLng': markerPosition}, function(results, status) {
         if (status == google.maps.GeocoderStatus.OK) {
-          currentAddress = template.replace('%{formatted_address}', results[0].formatted_address);
-          currentAddress = currentAddress.replace('%{lat}', markerPosition.lat());
-          currentAddress = currentAddress.replace('%{lng}', markerPosition.lng());
-          _this.$currentAddress.text(currentAddress);
+          _this.renderCurrentAddress(results[0].formatted_address, markerPosition.lat(), markerPosition.lng())
         }
       });
+    };
+
+    Locator.prototype.renderCurrentAddress = function(formattedAddress, lat, lng) {
+        var template = '%{formatted_address} (%{lat}, %{lng})';
+        currentAddress = template.replace('%{formatted_address}', formattedAddress);
+        currentAddress = currentAddress.replace('%{lat}', lat);
+        currentAddress = currentAddress.replace('%{lng}', lng);
+        this.$currentAddress.text(currentAddress);
     };
 
     Locator.prototype.setPosition = function() {
