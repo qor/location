@@ -46,10 +46,7 @@ func (Location) ConfigureQorResource(res *admin.Resource) {
 
 	if res.GetMeta("Location") == nil {
 		res.Meta(&admin.Meta{Name: "Location", Type: "location", Valuer: func(resource interface{}, ctx *qor.Context) interface{} {
-			if location, ok := resource.(locationInterface); ok {
-				return location.GetLocation()
-			}
-			return nil
+			return resource.(locationInterface).GetLocation()
 		}})
 		res.IndexAttrs(append(res.IndexAttrs(), "-Location")...)
 		res.ShowAttrs(append(res.ShowAttrs(), "-Location")...)
