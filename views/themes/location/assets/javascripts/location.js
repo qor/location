@@ -127,6 +127,7 @@
           map.setCenter(results[0].geometry.location);
           map.setZoom(zoom);
           marker.setPosition(results[0].geometry.location);
+          _this.setPosition();
           _this.renderCurrentAddress(results[0].formatted_address, results[0].geometry.location.lat(), results[0].geometry.location.lng())
         } else {
           alert('Geocode was not successful for the following reason: ' + status);
