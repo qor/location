@@ -20,40 +20,40 @@
         <div class="qor-field">
           <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield qor-textfield--static-label">
             <input class="mdl-textfield__input" id="{{.InputId}}_Address" type="text" data-location-role="address" name="{{$addressName}}" value="{{.Value.Address}}" {{if $hasNotUpdatePermission}}disabled{{end}}>
-            <label class="mdl-textfield__label" for="{{.InputId}}_Address">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Loation" "Address") "Address"}}</label>
+            <label class="mdl-textfield__label" for="{{.InputId}}_Address">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Location" "Address") "Address"}}</label>
           </div>
         </div>
 
         <div class="qor-field">
           <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield qor-textfield--static-label">
             <input class="mdl-textfield__input" id="{{.InputId}}_City" type="text" data-location-role="city" name="{{$cityName}}" value="{{.Value.City}}" {{if $hasNotUpdatePermission}}disabled{{end}}>
-            <label class="mdl-textfield__label" for="{{.InputId}}_City">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Loation" "City") "City"}}</label>
+            <label class="mdl-textfield__label" for="{{.InputId}}_City">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Location" "City") "City"}}</label>
           </div>
         </div>
 
         <div class="qor-field">
           <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield qor-textfield--static-label">
             <input class="mdl-textfield__input" id="{{.InputId}}_Region" type="text" data-location-role="region" name="{{$regionName}}" value="{{.Value.Region}}" {{if $hasNotUpdatePermission}}disabled{{end}}>
-            <label class="mdl-textfield__label" for="{{.InputId}}_Region">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Loation" "Region") "Region"}}</label>
+            <label class="mdl-textfield__label" for="{{.InputId}}_Region">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Location" "Region") "Region"}}</label>
           </div>
         </div>
 
         <div class="qor-field">
           <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield qor-textfield--static-label">
             <input class="mdl-textfield__input" id="{{.InputId}}_Country" type="text" data-location-role="country" name="{{$countryName}}" value="{{.Value.Country}}" {{if $hasNotUpdatePermission}}disabled{{end}}>
-            <label class="mdl-textfield__label" for="{{.InputId}}_Country">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Loation" "Country") "Country"}}</label>
+            <label class="mdl-textfield__label" for="{{.InputId}}_Country">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Location" "Country") "Country"}}</label>
           </div>
         </div>
 
         <div class="qor-field">
           <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield qor-textfield--static-label">
             <input class="mdl-textfield__input" id="{{.InputId}}_Zip" type="text" data-location-role="zip" name="{{$zipName}}" value="{{.Value.Zip}}" {{if $hasNotUpdatePermission}}disabled{{end}}>
-            <label class="mdl-textfield__label" for="{{.InputId}}_Zip">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Loation" "Zip") "Zip"}}</label>
+            <label class="mdl-textfield__label" for="{{.InputId}}_Zip">{{dt (printf "%v.attributes.%v.%v" .Base.ToParam "Location" "Zip") "Zip"}}</label>
           </div>
         </div>
 
         <button class="mdl-button mdl-js-button mdl-button--raised" data-location-role="geocode">
-          {{dt (printf "%v.%v.%v" .Base.ToParam "Loation" "Search on Map") "Search on Map"}}
+          {{dt (printf "%v.%v.%v" .Base.ToParam "Location" "Search on Map") "Search on Map"}}
         </button>
       </div>
 
@@ -63,7 +63,7 @@
           <div class="mdl-card__supporting-text" data-location-role="currentAddress"></div>
           <div class="mdl-card__actions mdl-card--border">
             <button class="mdl-button mdl-js-button" data-location-role="reverseGeocode">
-              {{dt (printf "%v.%v.%v" .Base.ToParam "Loation" "Set Address from Marker") "Set Address from Marker"}}
+              {{dt (printf "%v.%v.%v" .Base.ToParam "Location" "Set Address from Marker") "Set Address from Marker"}}
             </button>
           </div>
         </div>
