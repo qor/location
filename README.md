@@ -15,6 +15,12 @@ type Store struct {
 	Name string
 	location.Location
 }
+
+type Shop struct {
+	gorm.Model
+	Name string
+	location.Location `location:"name:Address"`
+}
 ```
 
 # License
