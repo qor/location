@@ -15,7 +15,7 @@
 <div class="qor-location qor-field" data-location="true">
   <label class="qor-field__label" for="{{.InputId}}">{{dt $attributesScoped $labelName}}</label>
 
-  <div class="qor-field__block" id="{{.InputId}}">
+  <div class="qor-field__block qor-fieldset" id="{{.InputId}}">
     <div class="mdl-grid">
       <div class="mdl-cell mdl-cell--6-col mdl-cell--12-col-tablet mdl-cell--12-col-phone">
         <input id="{{.InputId}}_Latitude" type="hidden" data-location-role="latitude" name="{{$latitudeName}}" value="{{.Value.Latitude}}" {{if $hasNotUpdatePermission}}disabled{{end}}>
