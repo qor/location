@@ -58,10 +58,10 @@ func (*Location) ConfigureQorResource(res resource.Resourcer) {
 				res.Meta(&admin.Meta{Name: field.Name, Label: labelName, Type: "location", Valuer: func(resource interface{}, ctx *qor.Context) interface{} {
 					return resource.(locationInterface).GetLocation()
 				}})
-				res.IndexAttrs(append(res.IndexAttrs(), "-"+field.Name, "-Latitude", "-Longitude")...)
+				res.IndexAttrs(res.IndexAttrs(), "-"+field.Name, "-Latitude", "-Longitude")
 				res.NewAttrs(res.NewAttrs(), "-Address", "-City", "-Region", "-Country", "-Zip", "-Latitude", "-Longitude")
 				res.EditAttrs(res.EditAttrs(), "-Address", "-City", "-Region", "-Country", "-Zip", "-Latitude", "-Longitude")
-				res.TouchShowAttrs(res.ShowAttrs(), "-"+field.Name)
+				res.ShowAttrs(res.ShowAttrs(), "-"+field.Name, false)
 			}
 		}
 	}
