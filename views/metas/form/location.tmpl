@@ -1,6 +1,6 @@
 {{$inputName := .Meta.Name}}
 {{$labelName := .Meta.Label}}
-{{$attributesScoped := printf "%v.attributes.%v" .Base.ToParam $labelName}}
+{{$attributesScoped := printf "%v.attributes.%v" .BaseResource.ToParam $labelName}}
 
 {{$countryName := (replace_suffix .InputName $inputName "Country") }}
 {{$cityName := (replace_suffix .InputName $inputName "City") }}
