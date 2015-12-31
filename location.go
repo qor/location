@@ -30,22 +30,18 @@ func (location *Location) GetLocation() *Location {
 	return location
 }
 
-var injected bool
-
 func (*Location) ConfigureQorResource(res resource.Resourcer) {
 	if res, ok := res.(*admin.Resource); ok {
 		Admin := res.GetAdmin()
 		res.UseTheme("location")
 
-		if !injected {
-			injected = true
-			for _, gopath := range strings.Split(os.Getenv("GOPATH"), ":") {
-				admin.RegisterViewPath(path.Join(gopath, "src/github.com/qor/location/views"))
-			}
-			Admin.RegisterFuncMap("replace_suffix", func(str, suffix, newSuffix string) string {
-				return fmt.Sprint(strings.TrimSuffix(str, suffix), newSuffix)
-			})
+		for _, gopath := range strings.Split(os.Getenv("GOPATH"), ":") {
+			admin.RegisterViewPath(path.Join(gopath, "src/github.com/qor/location/views"))
 		}
+
+		Admin.RegisterFuncMap("replace_suffix", func(str, suffix, newSuffix string) string {
+			return fmt.Sprint(strings.TrimSuffix(str, suffix), newSuffix)
+		})
 
 		scope := Admin.Config.DB.NewScope(res.Value)
 		if field, ok := scope.GetModelStruct().ModelType.FieldByName("Location"); ok {
