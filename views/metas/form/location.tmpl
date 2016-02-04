@@ -13,7 +13,7 @@
 {{$hasNotUpdatePermission := not (has_update_permission .Meta)}}
 
 <div class="qor-location qor-field" data-location="true">
-  <label class="qor-field__label" for="{{.InputId}}">{{dt $attributesScoped $labelName}}</label>
+  <label class="qor-field__label" for="{{.InputId}}">{{t $attributesScoped $labelName}}</label>
 
   <div class="qor-field__block qor-fieldset" id="{{.InputId}}">
     <div class="mdl-grid">
@@ -24,40 +24,40 @@
         <div class="qor-field">
           <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield qor-textfield--static-label">
             <input class="mdl-textfield__input" id="{{.InputId}}_Address" type="text" data-location-role="address" name="{{$addressName}}" value="{{.Value.Address}}" {{if $hasNotUpdatePermission}}disabled{{end}}>
-            <label class="mdl-textfield__label" for="{{.InputId}}_Address">{{dt (printf "%v.%v" $attributesScoped "Address") "Address"}}</label>
+            <label class="mdl-textfield__label" for="{{.InputId}}_Address">{{t (printf "%v.%v" $attributesScoped "Address") "Address"}}</label>
           </div>
         </div>
 
         <div class="qor-field">
           <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield qor-textfield--static-label">
             <input class="mdl-textfield__input" id="{{.InputId}}_City" type="text" data-location-role="city" name="{{$cityName}}" value="{{.Value.City}}" {{if $hasNotUpdatePermission}}disabled{{end}}>
-            <label class="mdl-textfield__label" for="{{.InputId}}_City">{{dt (printf "%v.%v" $attributesScoped "City") "City"}}</label>
+            <label class="mdl-textfield__label" for="{{.InputId}}_City">{{t (printf "%v.%v" $attributesScoped "City") "City"}}</label>
           </div>
         </div>
 
         <div class="qor-field">
           <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield qor-textfield--static-label">
             <input class="mdl-textfield__input" id="{{.InputId}}_Region" type="text" data-location-role="region" name="{{$regionName}}" value="{{.Value.Region}}" {{if $hasNotUpdatePermission}}disabled{{end}}>
-            <label class="mdl-textfield__label" for="{{.InputId}}_Region">{{dt (printf "%v.%v" $attributesScoped "Region") "Region"}}</label>
+            <label class="mdl-textfield__label" for="{{.InputId}}_Region">{{t (printf "%v.%v" $attributesScoped "Region") "Region"}}</label>
           </div>
         </div>
 
         <div class="qor-field">
           <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield qor-textfield--static-label">
             <input class="mdl-textfield__input" id="{{.InputId}}_Country" type="text" data-location-role="country" name="{{$countryName}}" value="{{.Value.Country}}" {{if $hasNotUpdatePermission}}disabled{{end}}>
-            <label class="mdl-textfield__label" for="{{.InputId}}_Country">{{dt (printf "%v.%v" $attributesScoped "Country") "Country"}}</label>
+            <label class="mdl-textfield__label" for="{{.InputId}}_Country">{{t (printf "%v.%v" $attributesScoped "Country") "Country"}}</label>
           </div>
         </div>
 
         <div class="qor-field">
           <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield qor-textfield--static-label">
             <input class="mdl-textfield__input" id="{{.InputId}}_Zip" type="text" data-location-role="zip" name="{{$zipName}}" value="{{.Value.Zip}}" {{if $hasNotUpdatePermission}}disabled{{end}}>
-            <label class="mdl-textfield__label" for="{{.InputId}}_Zip">{{dt (printf "%v.%v" $attributesScoped "Zip") "Zip"}}</label>
+            <label class="mdl-textfield__label" for="{{.InputId}}_Zip">{{t (printf "%v.%v" $attributesScoped "Zip") "Zip"}}</label>
           </div>
         </div>
 
         <button class="mdl-button mdl-js-button mdl-button--raised" data-location-role="geocode">
-          {{dt (printf "%v.%v" $attributesScoped "Search on Map") "Search on Map"}}
+          {{t (printf "%v.%v" $attributesScoped "Search on Map") "Search on Map"}}
         </button>
       </div>
 
@@ -67,7 +67,7 @@
           <div class="mdl-card__supporting-text" data-location-role="currentAddress"></div>
           <div class="mdl-card__actions mdl-card--border">
             <button class="mdl-button mdl-js-button" data-location-role="reverseGeocode">
-              {{dt (printf "%v.%v" $attributesScoped "Set Address from Marker") "Set Address from Marker"}}
+              {{t (printf "%v.%v" $attributesScoped "Set Address from Marker") "Set Address from Marker"}}
             </button>
           </div>
         </div>
