@@ -2,8 +2,6 @@ package location
 
 import (
 	"fmt"
-	"os"
-	"path"
 	"strings"
 
 	"github.com/qor/qor"
@@ -35,9 +33,7 @@ func (*Location) ConfigureQorResource(res resource.Resourcer) {
 		Admin := res.GetAdmin()
 		res.UseTheme("location")
 
-		for _, gopath := range strings.Split(os.Getenv("GOPATH"), ":") {
-			admin.RegisterViewPath(path.Join(gopath, "src/github.com/qor/location/views"))
-		}
+		admin.RegisterViewPath("github.com/qor/location/views")
 
 		Admin.RegisterFuncMap("replace_suffix", func(str, suffix, newSuffix string) string {
 			return fmt.Sprint(strings.TrimSuffix(str, suffix), newSuffix)
