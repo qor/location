@@ -10,6 +10,7 @@ import (
 	"github.com/qor/qor/utils"
 )
 
+// Location is a struct, you could embedded it into your model to get the Location feature for your model
 type Location struct {
 	Address   string
 	City      string
@@ -24,10 +25,12 @@ type locationInterface interface {
 	GetLocation() *Location
 }
 
+// GetLocation get location from your model
 func (location *Location) GetLocation() *Location {
 	return location
 }
 
+// ConfigureQorResource configure qor locale for Qor Admin
 func (*Location) ConfigureQorResource(res resource.Resourcer) {
 	if res, ok := res.(*admin.Resource); ok {
 		Admin := res.GetAdmin()
