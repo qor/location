@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/qor/qor"
 	"github.com/qor/admin"
+	"github.com/qor/qor"
 	"github.com/qor/qor/resource"
 	"github.com/qor/qor/utils"
 )
@@ -36,7 +36,7 @@ func (*Location) ConfigureQorResource(res resource.Resourcer) {
 		Admin := res.GetAdmin()
 		res.UseTheme("location")
 
-		admin.RegisterViewPath("github.com/qor/location/views")
+		res.GetAdmin().RegisterViewPath("github.com/qor/location/views")
 
 		Admin.RegisterFuncMap("replace_suffix", func(str, suffix, newSuffix string) string {
 			return fmt.Sprint(strings.TrimSuffix(str, suffix), newSuffix)
