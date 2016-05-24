@@ -54,9 +54,9 @@ func (*Location) ConfigureQorResource(res resource.Resourcer) {
 					return resource.(locationInterface).GetLocation()
 				}})
 				res.IndexAttrs(res.IndexAttrs(), "-"+field.Name, "-Latitude", "-Longitude")
-				res.NewAttrs(res.NewAttrs(), "-Address", "-City", "-Region", "-Country", "-Zip", "-Latitude", "-Longitude")
-				res.EditAttrs(res.EditAttrs(), "-Address", "-City", "-Region", "-Country", "-Zip", "-Latitude", "-Longitude")
-				res.ShowAttrs(res.ShowAttrs(), "-"+field.Name, false)
+				res.NewAttrs(res.NewAttrs(), "Location", "-Address", "-City", "-Region", "-Country", "-Zip", "-Latitude", "-Longitude")
+				res.EditAttrs(res.EditAttrs(), "Location", "-Address", "-City", "-Region", "-Country", "-Zip", "-Latitude", "-Longitude")
+				res.ShowAttrs(res.ShowAttrs(), "Location", "-"+field.Name, false)
 			}
 		}
 	}
