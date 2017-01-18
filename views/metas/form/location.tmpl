@@ -86,11 +86,10 @@
       tagjs.async = true;
       tagjs.defer = true;
       tagjs.id = tagId;
-      tagjs.src = "//maps.googleapis.com/maps/api/js?callback=QorLocation.Init";
+      tagjs.src = "//maps.googleapis.com/maps/api/js?callback=QorLocation.Init{{if .Meta.Config.GoogleAPIKey}}&key={{.Meta.Config.GoogleAPIKey}}{{end}}";
       s.parentNode.insertBefore(tagjs, s);
     } else {
       QorLocation.InitAfterSlideOutOpen();
     }
   }());
 </script>
-

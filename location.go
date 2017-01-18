@@ -10,6 +10,15 @@ import (
 	"github.com/qor/qor/utils"
 )
 
+var GoogleAPIKey string
+
+type LocationConfig struct {
+	GoogleAPIKey string
+}
+
+func (LocationConfig) ConfigureQorMeta(meta resource.Metaor) {
+}
+
 // Location is a struct, you could embedded it into your model to get the Location feature for your model
 type Location struct {
 	Address   string
@@ -50,7 +59,7 @@ func (*Location) ConfigureQorResource(res resource.Resourcer) {
 			}
 
 			if res.GetMeta(field.Name) == nil {
-				res.Meta(&admin.Meta{Name: field.Name, Label: labelName, Type: "location", Valuer: func(resource interface{}, ctx *qor.Context) interface{} {
+				res.Meta(&admin.Meta{Name: field.Name, Label: labelName, Type: "location", Config: &LocationConfig{GoogleAPIKey: GoogleAPIKey}, Valuer: func(resource interface{}, ctx *qor.Context) interface{} {
 					return resource.(locationInterface).GetLocation()
 				}})
 				res.IndexAttrs(res.IndexAttrs(), "-"+field.Name, "-Latitude", "-Longitude")
