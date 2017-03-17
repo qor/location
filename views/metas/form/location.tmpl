@@ -12,7 +12,7 @@
 
 {{$hasNotUpdatePermission := not (has_update_permission .Meta)}}
 
-<div class="qor-location qor-field" data-location="true">
+<div class="qor-location qor-field qor-location__src" data-location-assets-src="//maps.googleapis.com/maps/api/js?{{if .Meta.Config.GoogleAPIKey}}key={{.Meta.Config.GoogleAPIKey}}{{end}}" data-location="true">
   <label class="qor-field__label" for="{{.InputId}}">{{t $attributesScoped $labelName}}</label>
 
   <div class="qor-field__block qor-fieldset" id="{{.InputId}}">

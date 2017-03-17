@@ -235,6 +235,21 @@
       }
     };
 
+    $.fn.qorSliderAfterShow.insertGoogleMapAssets = function(){
+      var tagId = 'location-google-map-script-tag';
+      if (!document.getElementById(tagId)) {
+        var tagjs = document.createElement("script");
+        var s = document.getElementsByTagName("script")[0];
+        tagjs.async = true;
+        tagjs.defer = true;
+        tagjs.id = tagId;
+        tagjs.src = $('.qor-location__src').data('location-assets-src');
+        s.parentNode.insertBefore(tagjs, s);
+      } else {
+        Location.InitAfterSlideOutOpen();
+      }
+    }
+
     Export.QorLocation = Location;
 
   })(jQuery, window);
