@@ -10,6 +10,10 @@ import (
 	"github.com/qor/qor/utils"
 )
 
+func init() {
+	admin.RegisterViewPath("github.com/qor/location/views")
+}
+
 var GoogleAPIKey string
 
 type LocationConfig struct {
@@ -44,8 +48,6 @@ func (*Location) ConfigureQorResource(res resource.Resourcer) {
 	if res, ok := res.(*admin.Resource); ok {
 		Admin := res.GetAdmin()
 		res.UseTheme("location")
-
-		res.GetAdmin().RegisterViewPath("github.com/qor/location/views")
 
 		Admin.RegisterFuncMap("replace_suffix", func(str, suffix, newSuffix string) string {
 			return fmt.Sprint(strings.TrimSuffix(str, suffix), newSuffix)
