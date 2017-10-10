@@ -60,15 +60,14 @@ func (*Location) ConfigureQorResource(res resource.Resourcer) {
 				labelName = customName
 			}
 
-			if res.GetMeta(field.Name) == nil {
-				res.Meta(&admin.Meta{Name: field.Name, Label: labelName, Type: "location", Config: &LocationConfig{GoogleAPIKey: GoogleAPIKey}, Valuer: func(resource interface{}, ctx *qor.Context) interface{} {
-					return resource.(locationInterface).GetLocation()
-				}})
-				res.IndexAttrs(res.IndexAttrs(), "-"+field.Name, "-Latitude", "-Longitude")
-				res.NewAttrs(res.NewAttrs(), "Location", "-Address", "-City", "-Region", "-Country", "-Zip", "-Latitude", "-Longitude")
-				res.EditAttrs(res.EditAttrs(), "Location", "-Address", "-City", "-Region", "-Country", "-Zip", "-Latitude", "-Longitude")
-				res.ShowAttrs(res.ShowAttrs(), "Location", "-"+field.Name, false)
-			}
+			res.Meta(&admin.Meta{Name: field.Name, Label: labelName, Type: "location", Config: &LocationConfig{GoogleAPIKey: GoogleAPIKey}, Valuer: func(resource interface{}, ctx *qor.Context) interface{} {
+				return resource.(locationInterface).GetLocation()
+			}})
+
+			res.IndexAttrs(res.IndexAttrs(), "-"+field.Name, "-Latitude", "-Longitude")
+			res.NewAttrs(res.NewAttrs(), "Location", "-Address", "-City", "-Region", "-Country", "-Zip", "-Latitude", "-Longitude")
+			res.EditAttrs(res.EditAttrs(), "Location", "-Address", "-City", "-Region", "-Country", "-Zip", "-Latitude", "-Longitude")
+			res.ShowAttrs(res.ShowAttrs(), "Location", "-"+field.Name, false)
 		}
 	}
 }
