@@ -64,10 +64,34 @@ func (*Location) ConfigureQorResource(res resource.Resourcer) {
 				return resource.(locationInterface).GetLocation()
 			}})
 
+			hasLocation := func(sections []*admin.Section) bool {
+				for _, attr := range res.ConvertSectionToStrings(sections) {
+					if attr == "Location" {
+						return true
+					}
+				}
+				return false
+			}
+
 			res.IndexAttrs(res.IndexAttrs(), "-"+field.Name, "-Latitude", "-Longitude")
-			res.NewAttrs(res.NewAttrs(), "Location", "-Address", "-City", "-Region", "-Country", "-Zip", "-Latitude", "-Longitude")
-			res.EditAttrs(res.EditAttrs(), "Location", "-Address", "-City", "-Region", "-Country", "-Zip", "-Latitude", "-Longitude")
-			res.ShowAttrs(res.ShowAttrs(), "Location", "-"+field.Name, false)
+
+			res.OverrideNewAttrs(func() {
+				if !hasLocation(res.NewAttrs()) {
+					res.NewAttrs(res.NewAttrs(), "Location", "-Address", "-City", "-Region", "-Country", "-Zip", "-Latitude", "-Longitude")
+				}
+			})
+
+			res.OverrideEditAttrs(func() {
+				if !hasLocation(res.EditAttrs()) {
+					res.EditAttrs(res.EditAttrs(), "Location", "-Address", "-City", "-Region", "-Country", "-Zip", "-Latitude", "-Longitude")
+				}
+			})
+
+			res.OverrideShowAttrs(func() {
+				if !hasLocation(res.ShowAttrs()) {
+					res.ShowAttrs(res.ShowAttrs(), "Location", "-"+field.Name)
+				}
+			})
 		}
 	}
 }
