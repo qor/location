@@ -36,12 +36,18 @@ func (locationConfig *LocationConfig) ConfigureQorMeta(meta resource.Metaor) {
 			locationConfig.Backend = "baidu"
 		} else if locationConfig.GoogleAPIKey != "" {
 			locationConfig.Backend = "google"
-		} else if BaiduAPIKey != "" && locationConfig.BaiduAPIKey == "" {
+		}
+	}
+
+	if BaiduAPIKey != "" && locationConfig.BaiduAPIKey == "" {
+		locationConfig.BaiduAPIKey = BaiduAPIKey
+		if locationConfig.Backend == "" {
 			locationConfig.Backend = "baidu"
-			locationConfig.BaiduAPIKey = BaiduAPIKey
-		} else if GoogleAPIKey != "" && locationConfig.GoogleAPIKey == "" {
+		}
+	} else if GoogleAPIKey != "" && locationConfig.GoogleAPIKey == "" {
+		locationConfig.GoogleAPIKey = GoogleAPIKey
+		if locationConfig.Backend == "" {
 			locationConfig.Backend = "google"
-			locationConfig.GoogleAPIKey = GoogleAPIKey
 		}
 	}
 }
