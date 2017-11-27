@@ -14,18 +14,36 @@ func init() {
 	admin.RegisterViewPath("github.com/qor/location/views")
 }
 
-var _ admin.MetaConfigInterface = LocationConfig{}
-
-// GoogleAPIKey Key of GoogleAPI
-var GoogleAPIKey string
+var (
+	_ admin.MetaConfigInterface = &LocationConfig{}
+	// GoogleAPIKey Key of Google Map API
+	GoogleAPIKey string
+	// BaiduAPIKey Key of Baidu Map API
+	BaiduAPIKey string
+)
 
 // LocationConfig Location Meta's Config
 type LocationConfig struct {
+	Backend      string
+	BaiduAPIKey  string
 	GoogleAPIKey string
 }
 
 // ConfigureQorMeta configure Qor Meta to implement MetaConfig interface
-func (LocationConfig) ConfigureQorMeta(meta resource.Metaor) {
+func (locationConfig *LocationConfig) ConfigureQorMeta(meta resource.Metaor) {
+	if locationConfig.Backend == "" {
+		if locationConfig.BaiduAPIKey != "" {
+			locationConfig.Backend = "baidu"
+		} else if locationConfig.GoogleAPIKey != "" {
+			locationConfig.Backend = "google"
+		} else if BaiduAPIKey != "" && locationConfig.BaiduAPIKey == "" {
+			locationConfig.Backend = "baidu"
+			locationConfig.BaiduAPIKey = BaiduAPIKey
+		} else if GoogleAPIKey != "" && locationConfig.GoogleAPIKey == "" {
+			locationConfig.Backend = "google"
+			locationConfig.GoogleAPIKey = GoogleAPIKey
+		}
+	}
 }
 
 // Location is a struct, you could embedded it into your model to get the Location feature for your model
@@ -65,7 +83,7 @@ func (*Location) ConfigureQorResource(res resource.Resourcer) {
 				labelName = customName
 			}
 
-			res.Meta(&admin.Meta{Name: field.Name, Label: labelName, Type: "location", Config: &LocationConfig{GoogleAPIKey: GoogleAPIKey}, Valuer: func(resource interface{}, ctx *qor.Context) interface{} {
+			res.Meta(&admin.Meta{Name: field.Name, Label: labelName, Type: "location", Config: &LocationConfig{GoogleAPIKey: GoogleAPIKey, BaiduAPIKey: BaiduAPIKey}, Valuer: func(resource interface{}, ctx *qor.Context) interface{} {
 				return resource.(locationInterface).GetLocation()
 			}})
 
