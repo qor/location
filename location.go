@@ -14,12 +14,17 @@ func init() {
 	admin.RegisterViewPath("github.com/qor/location/views")
 }
 
+var _ admin.MetaConfigInterface = LocationConfig{}
+
+// GoogleAPIKey Key of GoogleAPI
 var GoogleAPIKey string
 
+// LocationConfig Location Meta's Config
 type LocationConfig struct {
 	GoogleAPIKey string
 }
 
+// ConfigureQorMeta configure Qor Meta to implement MetaConfig interface
 func (LocationConfig) ConfigureQorMeta(meta resource.Metaor) {
 }
 
