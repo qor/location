@@ -9,13 +9,17 @@ function qorInitMapAssets(selector) {
             id = `qor_map_${mapSource}`,
             src;
 
-        if ($(`#${id}`).length) {
-            return;
-        }
-
         if (mapSource === 'baidu') {
+            if ($(`#${id}`).length) {
+                new QorLocation($(this)).initBaiduMap();
+                return;
+            }
             src = `//api.map.baidu.com/api?v=2.0&ak=${apiKey}&callback=qorInitBaiduMap`;
         } else if (mapSource === 'google') {
+            if ($(`#${id}`).length) {
+                new QorLocation($(this)).initBaiduMap();
+                return;
+            }
             src = `//maps.googleapis.com/maps/api/js?key=${apiKey}`;
         } else {
             console.log('QOR only support baidu or google Map, please make sure your Map config is correct!');
@@ -41,6 +45,7 @@ function qorLoadMapScript(src, id) {
 function QorLocation(element, options) {
     this.$element = $(element);
     this.options = $.extend({}, QorLocation.DEFAULTS, $.isPlainObject(options) && options);
+    this.roles = {};
     this.init();
 }
 
@@ -49,46 +54,38 @@ QorLocation.prototype = {
 
     init: function() {
         let $roles = this.$element.find('[data-location-role]'),
-            _this = this,
+            roles = this.roles,
             roleName;
 
         // country city region address zip latitude longitude geocode reverseGeocode map currentAddress
 
         $roles.each(function() {
             roleName = $(this).data('location-role');
-            _this[`$${roleName}`] = $(this);
+            roles[`$${roleName}`] = $(this);
         });
         this.bind();
     },
 
     bind: function() {
-        this.$reverseGeocode.on('click', this.getmarkerPosition.bind(this));
+        this.roles.$reverseGeocode.on('click', this.getAddress.bind(this));
+        this.roles.$geocode.on('click', this.getPosition.bind(this));
     },
 
     unbind: function() {},
 
     initBaiduMap: function() {
-        let map = new BMap.Map(this.$element.find('.qor__location-map')[0]),
-            latitude = Number(this.$latitude.val()), //纬度
-            longitude = Number(this.$longitude.val()), //经度
+        let roles = this.roles,
+            latitude = Number(roles.$latitude.val()),
+            longitude = Number(roles.$longitude.val()),
             point = new BMap.Point(longitude, latitude),
             _this = this;
-
-        map.centerAndZoom(point, 15);
-        map.enableScrollWheelZoom();
 
         if (latitude === 0 && longitude === 0) {
             let geolocation = new BMap.Geolocation();
             geolocation.getCurrentPosition(
                 function(r) {
                     if (this.getStatus() == BMAP_STATUS_SUCCESS) {
-                        let marker = new BMap.Marker(r.point);
-                        map.addOverlay(marker);
-                        map.panTo(r.point);
-                        marker.enableDragging();
-
-                        _this.marker = marker;
-                        console.log('您的位置：' + r.point.lng + ',' + r.point.lat);
+                        _this.setupBaiduMap(r.point);
                     } else {
                         console.log('failed' + this.getStatus());
                     }
@@ -117,24 +114,67 @@ QorLocation.prototype = {
             //     options
             // );
         } else {
-            let marker = new BMap.Marker(point);
-            map.addOverlay(marker);
-            marker.enableDragging();
-            this.marker = marker;
+            this.setupBaiduMap(point);
         }
     },
 
-    getmarkerPosition: function() {
-        console.log(this.marker.getPosition());
-        this.getAddressFromPosition(this.marker.getPosition());
+    setupBaiduMap: function(point) {
+        let map = new BMap.Map(this.$element.find('.qor__location-map')[0]);
+
+        map.centerAndZoom(point, 18);
+        map.enableScrollWheelZoom();
+
+        let marker = new BMap.Marker(point);
+        map.addOverlay(marker);
+        map.panTo(point);
+        marker.enableDragging();
+        this.marker = marker;
+        this.baiduMap = map;
+    },
+
+    getPosition: function() {
+        let map = this.baiduMap,
+            roles = this.roles,
+            marker = this.marker,
+            city = roles.$city.val(),
+            address = roles.$address.val(),
+            myGeo = new BMap.Geocoder();
+
+        if (city == '' || address == '') {
+            window.QOR.qorConfirm('Please ensure that the city and address have been filled in correctly!');
+            return;
+        }
+        myGeo.getPoint(
+            address,
+            function(point) {
+                if (point) {
+                    roles.$latitude.val(point.lat);
+                    roles.$longitude.val(point.lng);
+                    map.centerAndZoom(point, 18);
+                    marker.setPosition(point);
+                }
+            },
+            city
+        );
+    },
+
+    getAddress: function() {
+        let pos = this.marker.getPosition();
+
+        this.roles.$latitude.val(pos.lat);
+        this.roles.$longitude.val(pos.lng);
+        this.getAddressFromPosition(pos);
     },
 
     getAddressFromPosition: function(pos) {
-        let myGeo = new BMap.Geocoder();
-        // 根据坐标得到地址描述
+        let myGeo = new BMap.Geocoder(),
+            roles = this.roles;
+
         myGeo.getLocation(new BMap.Point(pos.lng, pos.lat), function(result) {
             if (result) {
-                console.log(result);
+                roles.$address.val(result.address);
+                roles.$city.val(result.addressComponents.city);
+                roles.$region.val(result.addressComponents.district);
             }
         });
     }
