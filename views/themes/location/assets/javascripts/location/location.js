@@ -20,7 +20,7 @@ function qorInitMapAssets(selector) {
                 new QorLocation($(this)).initBaiduMap();
                 return;
             }
-            src = `//maps.googleapis.com/maps/api/js?key=${apiKey}`;
+            src = `//maps.googleapis.com/maps/api/js?key=${apiKey}&callback=qorInitGoogleMap`;
         } else {
             console.log('QOR only support baidu or google Map, please make sure your Map config is correct!');
         }
@@ -32,6 +32,12 @@ function qorInitMapAssets(selector) {
 function qorInitBaiduMap() {
     $('[data-toggle="qor.location"]').each(function() {
         new QorLocation($(this)).initBaiduMap();
+    });
+}
+
+function qorInitGoogleMap() {
+    $('[data-toggle="qor.location"]').each(function() {
+        new QorLocation($(this)).initGoogleMap();
     });
 }
 
@@ -72,6 +78,8 @@ QorLocation.prototype = {
     },
 
     unbind: function() {},
+
+    initGoogleMap: function() {},
 
     initBaiduMap: function() {
         let roles = this.roles,
@@ -130,6 +138,20 @@ QorLocation.prototype = {
         marker.enableDragging();
         this.marker = marker;
         this.baiduMap = map;
+        this.baiduMapGeo = new BMap.Geocoder();
+
+        this.moveBaiduMapMarker(marker.getPosition());
+        marker.addEventListener('dragend', this.moveBaiduMapMarker.bind(this));
+    },
+
+    moveBaiduMapMarker: function(data) {
+        let $location = this.$element.find('.qor__location-address');
+
+        this.baiduMapGeo.getLocation(new BMap.Point(data.lng || data.point.lng, data.lat || data.point.lat), function(result) {
+            if (result) {
+                $location.html(result.address);
+            }
+        });
     },
 
     getPosition: function() {
@@ -138,7 +160,7 @@ QorLocation.prototype = {
             marker = this.marker,
             city = roles.$city.val(),
             address = roles.$address.val(),
-            myGeo = new BMap.Geocoder();
+            myGeo = this.baiduMapGeo;
 
         if (city == '' || address == '') {
             window.QOR.qorConfirm('Please ensure that the city and address have been filled in correctly!');
@@ -167,7 +189,7 @@ QorLocation.prototype = {
     },
 
     getAddressFromPosition: function(pos) {
-        let myGeo = new BMap.Geocoder(),
+        let myGeo = this.baiduMapGeo,
             roles = this.roles;
 
         myGeo.getLocation(new BMap.Point(pos.lng, pos.lat), function(result) {
