@@ -17,7 +17,7 @@ function qorInitMapAssets(selector) {
             src = `//api.map.baidu.com/api?v=2.0&ak=${apiKey}&callback=qorInitBaiduMap`;
         } else if (mapSource === 'google') {
             if ($(`#${id}`).length) {
-                new QorLocation($(this)).initBaiduMap();
+                new QorLocation($(this)).initGoogleMap();
                 return;
             }
             src = `//maps.googleapis.com/maps/api/js?key=${apiKey}&callback=qorInitGoogleMap`;
@@ -63,6 +63,8 @@ QorLocation.prototype = {
             roles = this.roles,
             roleName;
 
+        this.MAP_ID = this.$element.find('.qor__location-map')[0];
+        this.locationMapsource = this.$element.data('location-mapsource');
         // country city region address zip latitude longitude geocode reverseGeocode map currentAddress
 
         $roles.each(function() {
@@ -77,9 +79,50 @@ QorLocation.prototype = {
         this.roles.$geocode.on('click', this.getPosition.bind(this));
     },
 
-    unbind: function() {},
+    initGoogleMap: function() {
+        let options = {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            },
+            roles = this.roles,
+            latitude = Number(roles.$latitude.val()),
+            longitude = Number(roles.$longitude.val()),
+            _this = this;
 
-    initGoogleMap: function() {},
+        if (latitude === 0 && longitude === 0) {
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    _this.setupGoogleMap({lat: pos.coords.latitude, lng: pos.coords.longitude});
+                },
+                function(err) {
+                    console.warn(`ERROR(${err.code}): ${err.message}`);
+                    return;
+                },
+                options
+            );
+        } else {
+            this.setupGoogleMap({lat: latitude, lng: longitude});
+        }
+    },
+
+    setupGoogleMap: function(point) {
+        this.map = new google.maps.Map(this.MAP_ID, {
+            center: point,
+            zoom: 16
+        });
+        this.marker = new google.maps.Marker({
+            position: point,
+            draggable: true,
+            map: this.map
+        });
+
+        this.mapGeo = new google.maps.Geocoder();
+
+        google.maps.event.bind(this.marker, 'dragend', this, this.moveGoogleMapMarker);
+    },
+
+    moveGoogleMapMarker: function() {},
 
     initBaiduMap: function() {
         let roles = this.roles,
@@ -100,54 +143,33 @@ QorLocation.prototype = {
                 },
                 {enableHighAccuracy: true}
             );
-
-            // let options = {
-            //     enableHighAccuracy: true,
-            //     timeout: 5000,
-            //     maximumAge: 0
-            // },
-            // _this = this;
-
-            // navigator.geolocation.getCurrentPosition(
-            //     function(pos) {
-            //         console.log(pos);
-            //         // latitude = pos.coords.latitude;
-            //         // longitude = pos.coords.longitude;
-            //         // _this.setupBaiduMap(longitude, latitude);
-            //     },
-            //     function(err) {
-            //         console.warn(`ERROR(${err.code}): ${err.message}`);
-            //         return;
-            //     },
-            //     options
-            // );
         } else {
             this.setupBaiduMap(point);
         }
     },
 
     setupBaiduMap: function(point) {
-        let map = new BMap.Map(this.$element.find('.qor__location-map')[0]);
+        let map = new BMap.Map(this.MAP_ID),
+            marker = new BMap.Marker(point);
 
         map.centerAndZoom(point, 18);
         map.enableScrollWheelZoom();
 
-        let marker = new BMap.Marker(point);
         map.addOverlay(marker);
         map.panTo(point);
-        marker.enableDragging();
+        marker.enableDragging().addEventListener('dragend', this.moveBaiduMapMarker.bind(this));
+
         this.marker = marker;
-        this.baiduMap = map;
-        this.baiduMapGeo = new BMap.Geocoder();
+        this.map = map;
+        this.mapGeo = new BMap.Geocoder();
 
         this.moveBaiduMapMarker(marker.getPosition());
-        marker.addEventListener('dragend', this.moveBaiduMapMarker.bind(this));
     },
 
     moveBaiduMapMarker: function(data) {
         let $location = this.$element.find('.qor__location-address');
 
-        this.baiduMapGeo.getLocation(new BMap.Point(data.lng || data.point.lng, data.lat || data.point.lat), function(result) {
+        this.mapGeo.getLocation(new BMap.Point(data.lng || data.point.lng, data.lat || data.point.lat), function(result) {
             if (result) {
                 $location.html(result.address);
             }
@@ -155,12 +177,12 @@ QorLocation.prototype = {
     },
 
     getPosition: function() {
-        let map = this.baiduMap,
+        let map = this.map,
             roles = this.roles,
             marker = this.marker,
             city = roles.$city.val(),
             address = roles.$address.val(),
-            myGeo = this.baiduMapGeo;
+            myGeo = this.mapGeo;
 
         if (city == '' || address == '') {
             window.QOR.qorConfirm('Please ensure that the city and address have been filled in correctly!');
@@ -189,16 +211,23 @@ QorLocation.prototype = {
     },
 
     getAddressFromPosition: function(pos) {
-        let myGeo = this.baiduMapGeo,
+        let myGeo = this.mapGeo,
             roles = this.roles;
 
-        myGeo.getLocation(new BMap.Point(pos.lng, pos.lat), function(result) {
-            if (result) {
-                roles.$address.val(result.address);
-                roles.$city.val(result.addressComponents.city);
-                roles.$region.val(result.addressComponents.district);
-            }
-        });
+        if (this.locationMapsource === 'google') {
+            myGeo.geocode({location: pos}, function(results, status) {
+                // console.log(status);
+                // console.log(results);
+            });
+        } else {
+            myGeo.getLocation(new BMap.Point(pos.lng, pos.lat), function(result) {
+                if (result) {
+                    roles.$address.val(result.address);
+                    roles.$city.val(result.addressComponents.city);
+                    roles.$region.val(result.addressComponents.district);
+                }
+            });
+        }
     }
 };
 
