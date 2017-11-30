@@ -59,14 +59,16 @@ QorLocation.prototype = {
     constructor: QorLocation,
 
     init: function() {
-        let $roles = this.$element.find('[data-location-role]'),
+        let $element = this.$element,
+            $roles = $element.find('[data-location-role]'),
             roles = this.roles,
             roleName;
 
-        this.MAP_ID = this.$element.find('.qor__location-map')[0];
-        this.locationMapsource = this.$element.data('location-mapsource');
-        // country city region address zip latitude longitude geocode reverseGeocode map currentAddress
+        this.MAP_ID = $element.find('.qor__location-map')[0];
+        this.isGoogle = $element.data('location-mapsource') === 'google';
+        this.$location = $element.find('.qor__location-address');
 
+        // country city region address zip latitude longitude geocode reverseGeocode map currentAddress
         $roles.each(function() {
             roleName = $(this).data('location-role');
             roles[`$${roleName}`] = $(this);
@@ -118,11 +120,9 @@ QorLocation.prototype = {
         });
 
         this.mapGeo = new google.maps.Geocoder();
-
-        google.maps.event.bind(this.marker, 'dragend', this, this.moveGoogleMapMarker);
+        google.maps.event.bind(this.marker, 'dragend', this, this.moveMarker);
+        this.moveMarker();
     },
-
-    moveGoogleMapMarker: function() {},
 
     initBaiduMap: function() {
         let roles = this.roles,
@@ -157,67 +157,93 @@ QorLocation.prototype = {
 
         map.addOverlay(marker);
         map.panTo(point);
-        marker.enableDragging().addEventListener('dragend', this.moveBaiduMapMarker.bind(this));
+        marker.enableDragging();
+        marker.addEventListener('dragend', this.moveMarker.bind(this));
 
         this.marker = marker;
         this.map = map;
         this.mapGeo = new BMap.Geocoder();
-
-        this.moveBaiduMapMarker(marker.getPosition());
+        this.moveMarker();
     },
 
-    moveBaiduMapMarker: function(data) {
-        let $location = this.$element.find('.qor__location-address');
+    moveMarker: function() {
+        let $location = this.$location,
+            mapGeo = this.mapGeo,
+            pos = this.marker.getPosition();
 
-        this.mapGeo.getLocation(new BMap.Point(data.lng || data.point.lng, data.lat || data.point.lat), function(result) {
-            if (result) {
-                $location.html(result.address);
-            }
-        });
+        if (this.isGoogle) {
+            mapGeo.geocode({latLng: pos}, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    $location.html(results[0].formatted_address);
+                }
+            });
+        } else {
+            mapGeo.getLocation(pos, function(result) {
+                if (result) {
+                    $location.html(result.address);
+                }
+            });
+        }
     },
 
     getPosition: function() {
         let map = this.map,
             roles = this.roles,
             marker = this.marker,
+            $location = this.$location,
             city = roles.$city.val(),
             address = roles.$address.val(),
             myGeo = this.mapGeo;
 
-        if (city == '' || address == '') {
-            window.QOR.qorConfirm('Please ensure that the city and address have been filled in correctly!');
-            return;
-        }
-        myGeo.getPoint(
-            address,
-            function(point) {
-                if (point) {
-                    roles.$latitude.val(point.lat);
-                    roles.$longitude.val(point.lng);
-                    map.centerAndZoom(point, 18);
-                    marker.setPosition(point);
+        if (this.isGoogle) {
+            myGeo.geocode({address: `${address}, ${city}`}, function(results, status) {
+                if (status === google.maps.GeocoderStatus.OK) {
+                    let result = results[0],
+                        pos = result.geometry.location;
+
+                    map.setCenter(pos);
+                    marker.setPosition(pos);
+                    roles.$latitude.val(pos.lat);
+                    roles.$longitude.val(pos.lng);
+                    $location.html(result.formatted_address);
+                } else {
+                    QOR.qorConfirm('Geocode was not successful for the following reason: ' + status);
                 }
-            },
-            city
-        );
+            });
+        } else {
+            if (city == '' || address == '') {
+                QOR.qorConfirm('Please ensure that the city and address have been filled in correctly!');
+                return;
+            }
+            myGeo.getPoint(
+                address,
+                function(point) {
+                    if (point) {
+                        roles.$latitude.val(point.lat);
+                        roles.$longitude.val(point.lng);
+                        map.centerAndZoom(point, 18);
+                        marker.setPosition(point);
+                    }
+                },
+                city
+            );
+        }
     },
 
     getAddress: function() {
-        let pos = this.marker.getPosition();
+        let pos = this.marker.getPosition(),
+            myGeo = this.mapGeo,
+            roles = this.roles,
+            _this = this;
 
-        this.roles.$latitude.val(pos.lat);
-        this.roles.$longitude.val(pos.lng);
-        this.getAddressFromPosition(pos);
-    },
+        roles.$latitude.val(pos.lat);
+        roles.$longitude.val(pos.lng);
 
-    getAddressFromPosition: function(pos) {
-        let myGeo = this.mapGeo,
-            roles = this.roles;
-
-        if (this.locationMapsource === 'google') {
+        if (this.isGoogle) {
             myGeo.geocode({location: pos}, function(results, status) {
-                // console.log(status);
-                // console.log(results);
+                if (status == google.maps.GeocoderStatus.OK) {
+                    _this.setLocationFromGoogle(results[0]);
+                }
             });
         } else {
             myGeo.getLocation(new BMap.Point(pos.lng, pos.lat), function(result) {
@@ -228,6 +254,60 @@ QorLocation.prototype = {
                 }
             });
         }
+    },
+
+    setLocationFromGoogle: function(data) {
+        let roles = this.roles,
+            country = '',
+            address = '',
+            city = '',
+            region = '',
+            zip = '',
+            values = {
+                street_number: '',
+                route: '',
+                postal_code: '',
+                administrative_area_level_1: '',
+                locality: '',
+                country: ''
+            },
+            divided_by_city,
+            left_side,
+            addressComponents = data['address_components'];
+
+        for (var compIndex in addressComponents) {
+            var types = addressComponents[compIndex].types;
+            for (var typeIndex in types) {
+                if (types[typeIndex] == 'country') {
+                    country = addressComponents[compIndex].long_name;
+                }
+                values[types[typeIndex]] = addressComponents[compIndex].short_name;
+            }
+        }
+
+        city = values['locality'] || values['sublocality'] || values['administrative_area_level_3'];
+        region = values['country'] == 'FR' ? values['administrative_area_level_1'] : values['administrative_area_level_2'] || values['administrative_area_level_1'];
+        zip = values['postal_code'];
+
+        divided_by_city = data.formatted_address.split(city);
+        left_side = divided_by_city[0];
+
+        if (zip && zip != '') {
+            left_side = left_side.replace(zip, '');
+        }
+        if (left_side.replace(region, '') == left_side) {
+            address = left_side;
+        } else {
+            address = divided_by_city[1];
+        }
+        address = address.replace(/[\,\s]+$/i, '');
+        if (data.formatted_address.match(/^\d*,/)) address = '';
+
+        roles.$country.val(country);
+        roles.$zip.val(zip);
+        roles.$region.val(region);
+        roles.$city.val(city);
+        roles.$address.val(address);
     }
 };
 
