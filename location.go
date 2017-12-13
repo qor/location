@@ -31,17 +31,17 @@ type LocationConfig struct {
 
 // ConfigureQorMeta configure Qor Meta to implement MetaConfig interface
 func (locationConfig *LocationConfig) ConfigureQorMeta(meta resource.Metaor) {
+	if GoogleAPIKey != "" && locationConfig.GoogleAPIKey == "" {
+		locationConfig.GoogleAPIKey = GoogleAPIKey
+	} else if BaiduAPIKey != "" && locationConfig.BaiduAPIKey == "" {
+		locationConfig.BaiduAPIKey = BaiduAPIKey
+	}
+
 	if locationConfig.Backend == "" {
-		if locationConfig.BaiduAPIKey != "" {
-			locationConfig.Backend = "baidu"
-		} else if locationConfig.GoogleAPIKey != "" {
+		if locationConfig.GoogleAPIKey != "" {
 			locationConfig.Backend = "google"
-		} else if BaiduAPIKey != "" && locationConfig.BaiduAPIKey == "" {
+		} else if locationConfig.BaiduAPIKey != "" {
 			locationConfig.Backend = "baidu"
-			locationConfig.BaiduAPIKey = BaiduAPIKey
-		} else if GoogleAPIKey != "" && locationConfig.GoogleAPIKey == "" {
-			locationConfig.Backend = "google"
-			locationConfig.GoogleAPIKey = GoogleAPIKey
 		}
 	}
 }
